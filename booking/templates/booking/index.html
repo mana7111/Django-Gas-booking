@@ -1,0 +1,87 @@
+<!-- templates/booking/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .invoice-details {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gas Booking</h2>
+        <form id="booking-form">
+            <label for="consumer-number">Consumer Number:</label>
+            <input type="text" id="consumer-number" name="consumer-number" required>
+            <input type="submit" value="Book Cylinder">
+        </form>
+        <div id="response"></div>
+        <div id="invoice-details" class="invoice-details" style="display: none;">
+            <h3>Invoice Details</h3>
+            <p><strong>Invoice ID:</strong> <span id="invoice-id"></span></p>
+            <p><strong>Amount:</strong> $<span id="invoice-amount"></span></p>
+            <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+            <p><strong>Consumer Name:</strong> <span id="consumer-name"></span></p>
+            <p><strong>Delivery Address:</strong> <span id="delivery-address"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('booking-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const consumerNumber = document.getElementById('consumer-number').value;
+            const response = await fetch('/api/book-cylinder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ consumer_number: consumerNumber }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('response').innerText = data.message;
+                document.getElementById('invoice-id').innerText = data.invoice_id;
+                document.getElementById('invoice-amount').innerText = data.invoice_amount;
+                document.getElementById('order-id').innerText = data.order_id;
+                document.getElementById('consumer-name').innerText = data.consumer_name;
+                document.getElementById('delivery-address').innerText = data.delivery_address;
+                document.getElementById('invoice-details').style.display = 'block';
+            } else {
+                const errorText = await response.text();
+                document.getElementById('response').innerText = `Error: ${errorText}`;
+            }
+        });
+    </script>
+</body>
+</html>
+
